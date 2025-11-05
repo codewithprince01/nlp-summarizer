@@ -25,10 +25,10 @@ const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
 app.use(limiter);
 
 // ✅ Routes
-app.get('/api/health', (req, res) => res.json({ ok: true }));
-app.use('/api/auth', authRouter);
-app.use('/api/reports', reportsRouter);
-app.use('/api/summaries', summariesRouter);
+app.get('/health', (req, res) => res.json({ ok: true }));
+app.use('/auth', authRouter);
+app.use('/reports', reportsRouter);
+app.use('/summaries', summariesRouter);
 
 // ✅ Error handling
 app.use((err, req, res, next) => {
