@@ -6,9 +6,9 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 
-import authRouter from '../routes/auth.js';
-import reportsRouter from '../routes/reports.js';
-import summariesRouter from '../routes/summaries.js';
+import authRouter from './routes/auth.js';
+import reportsRouter from './routes/reports.js';
+import summariesRouter from './routes/summaries.js';
 
 const app = express();
 
