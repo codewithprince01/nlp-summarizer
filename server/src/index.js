@@ -13,7 +13,7 @@ import summariesRouter from './routes/summaries.js';
 const app = express();
 
 // ✅ Allowed frontend origin
-const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://your-frontend.vercel.app';
+const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://nlp-summarizer-m2dz.vercel.app';
 app.use(cors({ origin: allowedOrigin, credentials: true }));
 
 // ✅ Security middlewares
