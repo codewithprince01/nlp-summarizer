@@ -6,25 +6,33 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
 
-import authRouter from './routes/auth.js';
-import reportsRouter from './routes/reports.js';
-import summariesRouter from './routes/summaries.js';
+import authRouter from '../routes/auth.js';
+import reportsRouter from '../routes/reports.js';
+import summariesRouter from '../routes/summaries.js';
 
 const app = express();
 
-// ✅ Allowed frontend origin
+// ✅ Allow CORS only from your frontend domain (no trailing slash!)
 const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://nlp-summarizer-m2dz.vercel.app';
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+app.use(cors({
+  origin: allowedOrigin,
+  credentials: true,
+}));
 
-// ✅ Security middlewares
+// ✅ Security & parsing middlewares
 app.use(helmet());
 app.use(express.json({ limit: '2mb' }));
 app.use(cookieParser());
 
-const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
+// ✅ Rate limiter (avoid too many requests)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+});
 app.use(limiter);
 
 // ✅ Routes
+app.get('/', (req, res) => res.send('Server is running ✅'));
 app.get('/health', (req, res) => res.json({ ok: true }));
 app.use('/auth', authRouter);
 app.use('/reports', reportsRouter);
@@ -32,11 +40,11 @@ app.use('/summaries', summariesRouter);
 
 // ✅ Error handling
 app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  res.status(status).json({ message: err.message || 'Server error' });
+  console.error('❌ Error:', err.message);
+  res.status(err.status || 500).json({ message: err.message || 'Server error' });
 });
 
-// ✅ Connect MongoDB (only once)
+// ✅ MongoDB connection
 if (!mongoose.connection.readyState) {
   const MONGODB_URI = process.env.MONGODB_URI;
   if (MONGODB_URI) {
@@ -49,5 +57,12 @@ if (!mongoose.connection.readyState) {
   }
 }
 
-// ✅ Export app (Vercel serverless function)
+// ✅ For Vercel (export default)
+// Vercel expects a function export (not .listen)
 export default app;
+
+// ✅ For local development (run `npm run dev`)
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server running locally on port ${PORT}`));
+}
