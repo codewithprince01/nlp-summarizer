@@ -12,10 +12,23 @@ import summariesRouter from './routes/summaries.js';
 
 const app = express();
 
-// ✅ Allow CORS only from your frontend domain (no trailing slash!)
-const allowedOrigin = process.env.ALLOWED_ORIGIN || 'https://nlp-summarizer-m2dz.vercel.app';
+// ✅ CORS: allow configured origin in prod, and localhost in dev
+const allowedOriginEnv = process.env.ALLOWED_ORIGIN || 'https://nlp-summarizer-m2dz.vercel.app';
+const isProd = process.env.NODE_ENV === 'production';
+const devOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+];
 app.use(cors({
-  origin: allowedOrigin,
+  origin(origin, callback) {
+    if (!origin) return callback(null, true);
+    const allowList = isProd ? [allowedOriginEnv] : [allowedOriginEnv, ...devOrigins];
+    const ok = allowList.includes(origin);
+    return callback(ok ? null : new Error('Not allowed by CORS'), ok);
+  },
   credentials: true,
 }));
 
